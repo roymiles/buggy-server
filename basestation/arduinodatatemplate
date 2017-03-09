@@ -1,0 +1,37 @@
+%target 1
+V2
+
+%target 2
+R1
+R2
+
+%target 3
+R2
+
+R3
+%target 4
+R1
+
+R3
+%target 5
+R1
+
+C1
+
+Freq
+
+%target 6
+R1
+
+C1
+
+Freq
+
+%target 7
+R1
+
+C1
+
+Freq
+
+@

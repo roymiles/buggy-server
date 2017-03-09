@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!-- <script src=""file.js"></script> -->
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <style>
+table {
+    border-collapse: collapse;
+}
+
+tr td
+{
+    background-color: white;
+}
+
+tr:nth-child(odd) td:nth-child(even),
+tr:nth-child(even) td:nth-child(odd)
+{
+    background-color: black;
+}
+table, td, th {
+    border: 1px solid black;
+}
+
+td.blank {
+    border-left: none !important;
+    background-color: #fff !important;
+}
+
+.target_info_container {
+    background-color: #D5E7ED;
+    margin: 10px;
+}
+td.position_left {
+    border-left:5px solid blue !important;
+}
+td.position_top {
+    border-top:5px solid blue!important;
+}
+td.blocker {
+    background-color:5px solid red !important;
+}
+td.target{
+    background-color:5px solid green !important;
+}
+td.both{
+   border-left:5px solid blue !important;
+   border-top: 5px solid blue !important;
+}
+
+
+.target_info {
+    font-family: sans-serif;
+    background-color: #41A0BF;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    float: left;
+}
+
+</style>
+<title>buggy project basestation Group D</title>
+</head>
+
+<body>
+<h3> Buggy project basestation Group D</h3>
+<div class= "javascript_functions_and_inputs">
+<script type="text/javascript">
+if(jQuery.get("http://127.0.0.1:5000/isvictorious") == '1'){
+confirm("victory roll commencing");
+}else{window.setTimeout(function(){ document.location.reload(true); }, 5000);
+}
+
+</script>
+
+<input type="button" value="Start" onclick="start()" />
+
+<script>
+function start(){
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+        if (request.readyState === 4)
+        {
+            if (request.status === 200)
+            {
+                document.body.className = 'ok';
+                console.log(request.responseText);
+            }
+            else
+            {
+                document.body.className = 'error';
+            }
+        }
+        }
+
+request.open("GET", "http://127.0.0.1:5000/start" , true);
+request.send(null);
+};
+</script>
+<input type="button" value="Stop" onclick="stop()" />
+
+<script>
+function stop(){
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+        if (request.readyState === 4)
+        {
+            if (request.status === 200)
+            {
+                document.body.className = 'ok';
+                console.log(request.responseText);
+            }
+            else
+            {
+                document.body.className = 'error';
+            }
+        }
+        }
+
+request.open("GET", "http://127.0.0.1:5000/stop" , true);
+request.send(null);
+};
+
+
+</script><br>
+</div>
+{{ gridlayout|pprint}}
+Grid Layout<br>
+Route = red <br>
+Current position = blue<br>
+<table id= 'table' border="2" cellspacing="0" cellpadding="20">
+
+    {% for y in range(0, infoset['GRID_SIZE_Y'] - 1): %}
+    <tr>
+    {%      for x in range(0, infoset['GRID_SIZE_X'] - 1): %}
+        <td id="grid_{{ x }}_{{ y }}"
+
+            {% if gridlayout[y|string][x|string] == "1" %}
+                class = "position_left"
+            {% elif gridlayout[y|string][x|string] == "2" %}
+                class = "position_top"
+            {% elif gridlayout[y|string][x|string] == "3" %}
+                class = "blocker"
+            {% elif gridlayout[y|string][x|string] == "4" %}
+                class = "target"
+            {% elif gridlayout[y|string][x|string] == "5" %}
+                class = "both"
+            {% endif %}
+        ></td>
+    {%      endfor %}
+    </tr>
+    {% endfor %}
+
+    <tr>
+        <td class="blank"></td> <td></td> <td></td>
+    </tr>
+    <tr>
+        <td class="blank"></td> <td></td> <td></td>
+    </tr>
+     <tr>
+        <td></td> <td></td> <td></td> <td></td>
+    </tr>
+     <tr>
+        <td></td> <td></td> <td></td> <td></td>
+    </tr>
+     <tr>
+        <td></td> <td></td> <td></td> <td></td>
+    </tr>
+     <tr>
+        <td></td> <td></td> <td></td> <td></td>
+    </tr>
+
+
+
+
+
+
+
+</table>
+
+
+<div class="target_info_container">
+{%  for ctarget_name, ctarget_val in infoset['target_info'].items() : %}
+<div class="target_info" id="target_{{ ctarget_name }}">
+    <h2> {{ctarget_name }}</h2>
+    {% for cvarname, cvarval in ctarget_val.items(): %}
+    <p>{{cvarname}} = {{cvarval}}</p>
+    {% endfor %}
+</div>
+{% endfor %}
+    <div style="clear:both;"></div>
+</div>
+</body>
+</html>

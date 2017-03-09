@@ -1,0 +1,3 @@
+abstract notes
+purpose and context in first few sentences
+e.g the purpose of this report is to detail the contribuiton of xxx towards the buggy project for group d.

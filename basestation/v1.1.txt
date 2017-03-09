@@ -1,0 +1,38 @@
+        while (l < len(arduino_data)):
+            if (arduino_data[l][0] == '@'):#need an extra blank line at the end of file so this is placed as a placeholder at the end of file
+                return str(target)
+            if (arduino_data[l][0] == '%'):# counts the number of targets
+                ctarget = ctarget + 1
+            if (target == ctarget):
+                if target == 1:  # writes data taken from /analysis on correct line to be read
+                    l = l + 2
+                    arduino_data[l]=V2
+                elif target == 2:
+                    l = l + 2
+                    arduino_data[l] = R1
+                    l = l + 2
+                    arduino_data[l] = R2
+                elif target == 3:
+                    l = l + 2
+                    arduino_data[l] = R2
+                    l = l + 2
+                    arduino_data[l] = R3
+                elif target == 4:
+                    l = l + 2
+                    arduino_data[l] = R1
+                    l = l + 2
+                    arduino_data[l] = R3
+                elif target == 5 or 6 or 7:
+                    l = l + 2
+                    arduino_data[l] = R1
+                    l = l + 2
+                    arduino_data[l] = C1
+                    l = l + 2
+                    arduino_data[l] = FREQ
+                break
+            # Move to next line
+            l += 1
+        for lines<
+        f.write(arduino_data)
+        f.close()
+    return str(V2)
