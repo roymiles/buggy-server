@@ -3,79 +3,200 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <style>
-table {
-    border-collapse: collapse;
-}
+        table {
+            border-collapse: collapse;
+        }
 
-tr td
-{
-    background-color: white;
-}
+        tr td
+        {
+            background-color: white;
+        }
 
-tr:nth-child(odd) td:nth-child(even),
-tr:nth-child(even) td:nth-child(odd)
-{
-    background-color: black;
-}
-table, td, th {
-    border: 1px solid black;
-}
+        tr:nth-child(odd) td:nth-child(even),
+        tr:nth-child(even) td:nth-child(odd)
+        {
+            background-color: black;
+        }
+        table, td, th {
+            border: 1px solid black;
+        }
 
-td.blank {
-    border-left: none !important;
-    background-color: #fff !important;
-}
+        td.blank {
+            border-left: none !important;
+            background-color: #fff !important;
+        }
 
-.target_info_container {
-    background-color: #D5E7ED;
-    margin: 10px;
-}
-td.position_left {
-    border-left:5px solid blue !important;
-}
-td.position_top {
-    border-top:5px solid blue!important;
-}
-td.blocker {
-    background-color:5px solid red !important;
-}
-td.target{
-    background-color:5px solid green !important;
-}
-td.both{
-   border-left:5px solid blue !important;
-   border-top: 5px solid blue !important;
-}
+        .target_info_container {
+            background-color: #D5E7ED;
+            margin: 10px;
+        }
+        td.position_left {
+            border-left:5px solid blue !important;
+        }
+        td.position_top {
+            border-top:5px solid blue!important;
+        }
+        td.blocker {
+            background-color:5px solid red !important;
+        }
+        td.target{
+            background-color:5px solid green !important;
+        }
+        td.both{
+           border-left:5px solid blue !important;
+           border-top: 5px solid blue !important;
+        }
 
 
-.target_info {
-    font-family: sans-serif;
-    background-color: #41A0BF;
-    padding: 10px;
-    margin: 10px;
-    width: 200px;
-    float: left;
-}
-
-</style>
-<title>buggy project basestation Group D</title>
+        .target_info {
+            font-family: sans-serif;
+            background-color: #41A0BF;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            float: left;
+        }
+    </style>
+    <title>buggy project basestation Group D</title>
 </head>
 
 <body>
-<h3> Buggy project basestation Group D</h3>
-<div class= "javascript_functions_and_inputs">
-<script type="text/javascript">
-if(jQuery.get("http://127.0.0.1:5000/isvictorious") == '1'){
-confirm("victory roll commencing");
-}else{window.setTimeout(function(){ document.location.reload(true); }, 5000);
-}
+    <h3> Buggy project basestation Group D</h3>
+    <div class= "javascript_functions_and_inputs">
+    <script type="text/javascript">
+    if(jQuery.get("http://127.0.0.1:5000/isvictorious") == '1'){
+        confirm("victory roll commencing");
+    }else{
+        //window.setTimeout(function(){ document.location.reload(true); }, 5000);
 
-</script>
+        var debug;
+        /* Reload the arduino data every 5 seconds */
+        setInterval(function()
+        {
+            /*
+             * Reload the target data
+             */
+            $.ajax({
+              type:"GET",
+              url:"http://127.0.0.1:5000/getArduinoData",
+              datatype:"json",
+              success:function(data)
+              {
+                  /* Update the table */
+                  var parent = $("<div>", {id: "parentDiv"});
 
-<input type="button" value="Start" onclick="start()" />
+                  /*debug = data;*/
+                  var targets = ["target1", "target2", "target3", "target4", "target5", "target6", "target7"];
+                  var properties = ["Freq", "R1", "R2", "R3", "C1", "C2", "C3", "V1", "V2", "V3"];
+                  for (var i = 0; i < targets.length; i++) {
+                      if (data.hasOwnProperty(targets[i])) {
+                          console.log(targets[i]);
+                          var div = $("<div>", {id: targets[i], "class": "target_info"});
+                          var h = $("<h2>");
+                          h.text(targets[i]);
+                          div.append(h);
 
-<script>
-function start(){
+                          /* Write the values */
+                          for(var j = 0; j < properties.length; j++){
+                              if (data[targets[i]].hasOwnProperty(properties[j])) {
+                                  var p = $("<p>");
+                                  p.text(properties[j] + " = " + data[targets[i]][properties[j]]);
+                                  div.append(p);
+                              }
+                          }
+
+                          /* Append the dynamic HTML to the parent div */
+                          parent.append(div);
+                      }
+
+                  }
+                  console.log(parent.html());
+                  $('#arduinoData').html(parent); /* Update the div */
+                  //console.log(data);
+              }
+            });
+
+            /*
+             * Reload the maze layout
+             */
+            $.ajax({
+                type: "GET",
+                url: "http://127.0.0.1:5000/getMazeLayout",
+                datatype: "json",
+                success: function (data) {
+                    var GRID_SIZE_X = 16;
+                    var GRID_SIZE_Y = 12;
+
+                    debug = data;
+                    var table = $('<table>', {id: 'table', border: "2", cellspacing: "0", cellpadding: "20"});
+                    for (var y = 0; y < GRID_SIZE_Y; y++) {
+                        if (data.hasOwnProperty(y)) {
+                            var tr = $("<tr>");
+                            for (var x = 0; x < GRID_SIZE_X; x++) {
+                                if (data[y].hasOwnProperty(x)) {
+                                    /* Style the cells depending on the buggies orientation */
+                                    var td = $("<td>", {id: "grid_" + x + y});
+                                    switch (data[y][x]) {
+                                        case "1":
+                                            td.addClass("position_left");
+                                            break;
+                                        case "2":
+                                            td.addClass("position_top");
+                                            break;
+                                        case "3":
+                                            td.addClass("blocker");
+                                            break;
+                                        case "4":
+                                            td.addClass("target");
+                                            break;
+                                        case "5":
+                                            td.addClass("both");
+                                            break;
+                                    }
+
+                                tr.append(td);
+                                }
+                            }
+                            table.append(tr);
+                        }
+                    }
+
+                    console.log(table.html());
+
+                    /* The following code creates the extra cells of the grid - Tested */
+                    var tr1 = $('<tr>');
+                    tr1.append($('<td>', {class: 'blank'}));
+                    tr1.append($('<td>'));
+                    tr1.append($('<td>'));
+
+                    table.append(tr1.clone());
+                    table.append(tr1.clone());
+
+                    var tr2 = $('<tr>');
+                    tr2.append($('<td>'));
+                    tr2.append($('<td>'));
+                    tr2.append($('<td>'));
+                    tr2.append($('<td>'));
+
+                    table.append(tr2.clone());
+                    table.append(tr2.clone());
+                    table.append(tr2.clone());
+                    table.append(tr2.clone());
+
+                    $('#mazeLayout').html(table);
+                    /* Add the dynamic content */
+                }
+            });
+
+        }, 5000); //time in milliseconds
+    }
+
+    </script>
+
+    <input type="button" value="Start" onclick="start()" />
+
+    <script>
+    function start(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
         if (request.readyState === 4)
@@ -92,14 +213,14 @@ function start(){
         }
         }
 
-request.open("GET", "http://127.0.0.1:5000/start" , true);
-request.send(null);
-};
-</script>
-<input type="button" value="Stop" onclick="stop()" />
+        request.open("GET", "http://127.0.0.1:5000/start" , true);
+        request.send(null);
+    };
+    </script>
+    <input type="button" value="Stop" onclick="stop()" />
 
-<script>
-function stop(){
+    <script>
+    function stop(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
         if (request.readyState === 4)
@@ -116,78 +237,22 @@ function stop(){
         }
         }
 
-request.open("GET", "http://127.0.0.1:5000/stop" , true);
-request.send(null);
-};
+        request.open("GET", "http://127.0.0.1:5000/stop" , true);
+        request.send(null);
+    };
+    </script>
 
+    <br>
+    </div>
+    Grid Layout<br>
+    Route = red <br>
+    Current position = blue<br>
 
-</script><br>
-</div>
-{{ gridlayout|pprint}}
-Grid Layout<br>
-Route = red <br>
-Current position = blue<br>
-<table id= 'table' border="2" cellspacing="0" cellpadding="20">
+    <div id="mazeLayout">
+    </div> <!-- End mazeLayout -->
 
-    {% for y in range(0, infoset['GRID_SIZE_Y'] - 1): %}
-    <tr>
-    {%      for x in range(0, infoset['GRID_SIZE_X'] - 1): %}
-        <td id="grid_{{ x }}_{{ y }}"
+    <div id="arduinoData" class="target_info_container">
+    </div> <!-- End arduinoData -->
 
-            {% if gridlayout[y|string][x|string] == "1" %}
-                class = "position_left"
-            {% elif gridlayout[y|string][x|string] == "2" %}
-                class = "position_top"
-            {% elif gridlayout[y|string][x|string] == "3" %}
-                class = "blocker"
-            {% elif gridlayout[y|string][x|string] == "4" %}
-                class = "target"
-            {% elif gridlayout[y|string][x|string] == "5" %}
-                class = "both"
-            {% endif %}
-        ></td>
-    {%      endfor %}
-    </tr>
-    {% endfor %}
-
-    <tr>
-        <td class="blank"></td> <td></td> <td></td>
-    </tr>
-    <tr>
-        <td class="blank"></td> <td></td> <td></td>
-    </tr>
-     <tr>
-        <td></td> <td></td> <td></td> <td></td>
-    </tr>
-     <tr>
-        <td></td> <td></td> <td></td> <td></td>
-    </tr>
-     <tr>
-        <td></td> <td></td> <td></td> <td></td>
-    </tr>
-     <tr>
-        <td></td> <td></td> <td></td> <td></td>
-    </tr>
-
-
-
-
-
-
-
-</table>
-
-
-<div class="target_info_container">
-{%  for ctarget_name, ctarget_val in infoset['target_info'].items() : %}
-<div class="target_info" id="target_{{ ctarget_name }}">
-    <h2> {{ctarget_name }}</h2>
-    {% for cvarname, cvarval in ctarget_val.items(): %}
-    <p>{{cvarname}} = {{cvarval}}</p>
-    {% endfor %}
-</div>
-{% endfor %}
-    <div style="clear:both;"></div>
-</div>
 </body>
 </html>
